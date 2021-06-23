@@ -107,59 +107,62 @@ populate()
 sun_rise = time.gmtime()
 sun_set = time.gmtime()
 
-while True:
-    if time.gmtime() >= sun_rise:
-        if time.gmtime() >= sun_set:
-            bright_ness = 50
-        else:
-            bright_ness = 200
-        brightness(bright_ness)
+def weather_main():
+    while True:
+        if time.gmtime() >= sun_rise:
+            if time.gmtime() >= sun_set:
+                bright_ness = 50
+            else:
+                bright_ness = 200
+            brightness(bright_ness)
 
-        print_time()
-        inside_temp = str(round(sense.temp))
+            print_time()
+            inside_temp = str(round(sense.temp))
 
-        if is_connected():
-            # Fetch fresh weather data after every 5 minutes
-            if (time.time() - obs_time) > 300:
+            if is_connected():
+                # Fetch fresh weather data after every 5 minutes
+                if (time.time() - obs_time) > 300:
+                    try:
+                        get_owm_data()
+                        #print("Ran API Function", time.time(), obs_time, time_data )
+                    except Exception as e:
+                        #print(str(e))
+                        sensehat("Error: " + str(e), blue)
+
+                #print(time.time() - obs_time, temp,feel,wind,status)
+                # Print the Data
+                sensehat(time_data, purple)
                 try:
-                    get_owm_data()
-                    #print("Ran API Function", time.time(), obs_time, time_data )
-                except Exception as e:
-                    #print(str(e))
-                    sensehat("Error: " + str(e), blue)
+                    sensehat(status.title(), yellow)
+                    sensehat("In: " + inside_temp + "'C", green)
+                    sensehat("Out: " + temp + "'C", red)
+                    sensehat("Feels: " + feel + "'C", blue)
+                    sensehat("Wind: " + wind + "km/h", pink)
+                except NameError:
+                    pass
 
-            #print(time.time() - obs_time, temp,feel,wind,status)
-            # Print the Data
-            sensehat(time_data, purple)
-            try:
-                sensehat(status.title(), yellow)
-                sensehat("In: " + inside_temp + "'C", green)
-                sensehat("Out: " + temp + "'C", red)
-                sensehat("Feels: " + feel + "'C", blue)
-                sensehat("Wind: " + wind + "km/h", pink)
-            except NameError:
-                pass
+                # Fetch fresh Covid Data after every 5 minutes
+                if (time.time() - pop_time) > 300:
+                    populate()
 
-            # Fetch fresh Covid Data after every 5 minutes
-            if (time.time() - pop_time) > 300:
-                populate()
+                if irl_cases != '0':
+                    sensehat("Irl: " + irl_cases, red)
+                if cases_in != '0':
+                    sensehat("In: " + cases_in, red)
+                if cases_pb != '0':
+                    sensehat("Pb: " + cases_pb, red)
+                if cases_kpt != '0':
+                    sensehat("Kpt: " + cases_kpt, red)
+                #print(time.time() - pop_time, cases)
 
-            if irl_cases != '0':
-                sensehat("Irl: " + irl_cases, red)
-            if cases_in != '0':
-                sensehat("In: " + cases_in, red)
-            if cases_pb != '0':
-                sensehat("Pb: " + cases_pb, red)
-            if cases_kpt != '0':
-                sensehat("Kpt: " + cases_kpt, red)
-            #print(time.time() - pop_time, cases)
-
+            else:
+                inside_humidity = str(round(sense.humidity))
+                sensehat("Time: " + time_data, white)
+                sensehat("In: " + inside_temp  + "\'C", green)
+                sensehat("Hum: In: " + inside_humidity + "%", pink)
         else:
-            inside_humidity = str(round(sense.humidity))
-            sensehat("Time: " + time_data, white)
-            sensehat("In: " + inside_temp  + "\'C", green)
-            sensehat("Hum: In: " + inside_humidity + "%", pink)
-    else:
-        time.sleep(60)
-        pass
-    
+            time.sleep(60)
+            pass
+
+if __name__ == "__main__":
+    weather_main()
