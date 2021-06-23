@@ -99,6 +99,9 @@ def populate():
 obs_time = 0
 pop_time = 0
 
+#time.time() - obs_time
+#time.time() - pop_time
+
 populate()
 
 sun_rise = time.gmtime()
@@ -116,6 +119,7 @@ while True:
         inside_temp = str(round(sense.temp))
 
         if is_connected():
+            # Fetch fresh weather data after every 5 minutes
             if (time.time() - obs_time) > 300:
                 try:
                     get_owm_data()
@@ -136,6 +140,7 @@ while True:
             except NameError:
                 pass
 
+            # Fetch fresh Covid Data after every 5 minutes
             if (time.time() - pop_time) > 300:
                 populate()
 
@@ -157,3 +162,4 @@ while True:
     else:
         time.sleep(60)
         pass
+    
